@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Planner</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h1>Task Planner</h1>
+
+  <div class="form-container">
+    <h2>Add Parent Task</h2>
+    <form id="parentTaskForm">
+      <label for="parentTaskId">Parent Task ID:</label>
+      <input type="text" id="parentTaskId" required>
+      <label for="parentTaskName">Parent Task Name:</label>
+      <input type="text" id="parentTaskName" required pattern="^[a-zA-Z\s]+$">
+      <label for="parentTaskStartDate">Start Date:</label>
+      <input type="date" id="parentTaskStartDate" required>
+      <label for="parentTaskEndDate">End Date:</label>
+      <input type="date" id="parentTaskEndDate" required>
+      <label for="parentTaskStatus">Status:</label>
+      <select id="parentTaskStatus" required>
+        <option value="">Select Status</option>
+        <option value="in-progress">In Progress</option>
+        <option value="completed">Completed</option>
+        <option value="due-passed">Due Passed</option>
+        <option value="canceled">Canceled</option>
+      </select>
+      <button type="submit">Add Parent Task</button>
+    </form>
+  </div>
+
+  <div class="form-container">
+    <h2>Add Sub-Task</h2>
+    <form id="subTaskForm">
+      <label for="parentTaskIdForSubTask">Parent Task ID:</label>
+      <input type="text" id="parentTaskIdForSubTask" required>
+      <label for="subTaskName">Sub-Task Name:</label>
+      <input type="text" id="subTaskName" required pattern="^[a-zA-Z\s]+$">
+      <label for="subTaskStartDate">Start Date:</label>
+      <input type="date" id="subTaskStartDate" required>
+      <label for="subTaskEndDate">End Date:</label>
+      <input type="date" id="subTaskEndDate" required>
+      <label for="subTaskStatus">Status:</label>
+      <select id="subTaskStatus" required>
+        <option value="">Select Status</option>
+        <option value="in-progress">In Progress</option>
+        <option value="completed">Completed</option>
+        <option value="due-passed">Due Passed</option>
+        <option value="canceled">Canceled</option>
+      </select>
+      <button type="submit">Add Sub-Task</button>
+    </form>
+  </div>
+
+  <div class="search-container">
+    <input type="text" id="searchInput" placeholder="Search...">
+  </div>
+
+  <div id="taskList"></div>
+
+  <div id="errorMessages"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
