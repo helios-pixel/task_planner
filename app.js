@@ -123,6 +123,7 @@ function renderTaskList() {
   });
 }  
 // Edit Parent Task
+// Edit Parent Task
 function editParentTask(parentTaskId) {
   const parentTask = parentTasks.find(task => task.id === parentTaskId);
   if (parentTask) {
@@ -131,6 +132,12 @@ function editParentTask(parentTaskId) {
     const parentTaskEndDateInput = document.getElementById('parentTaskEndDate');
     const parentTaskStatusInput = document.getElementById('parentTaskStatus');
 
+    // Remove any existing "Save Changes" button
+    const existingSaveButton = parentTaskForm.querySelector('button[type="button"]');
+    if (existingSaveButton) {
+      parentTaskForm.removeChild(existingSaveButton);
+    }
+
     parentTaskNameInput.value = parentTask.name;
     parentTaskStartDateInput.value = formatDate(parentTask.startDate);
     parentTaskEndDateInput.value = formatDate(parentTask.endDate);
@@ -138,6 +145,8 @@ function editParentTask(parentTaskId) {
 
     const saveButton = document.createElement('button');
     saveButton.textContent = 'Save Changes';
+    saveButton.type = 'button'; // Set the type to 'button' to avoid form submission
+
     saveButton.addEventListener('click', () => {
       const errors = validateParentTask(
         parentTaskId.toString(),
@@ -169,6 +178,7 @@ function editParentTask(parentTaskId) {
     parentTaskForm.appendChild(saveButton);
   }
 }
+
 // Edit Sub-Task
 function editSubTask(parentTaskId, subTaskId) {
   const parentTask = parentTasks.find(task => task.id === parentTaskId);
@@ -180,6 +190,12 @@ function editSubTask(parentTaskId, subTaskId) {
       const subTaskEndDateInput = document.getElementById('subTaskEndDate');
       const subTaskStatusInput = document.getElementById('subTaskStatus');
 
+      // Remove any existing "Save Changes" button
+      const existingSaveButton = subTaskForm.querySelector('button[type="button"]');
+      if (existingSaveButton) {
+        subTaskForm.removeChild(existingSaveButton);
+      }
+
       subTaskNameInput.value = subTask.name;
       subTaskStartDateInput.value = formatDate(subTask.startDate);
       subTaskEndDateInput.value = formatDate(subTask.endDate);
@@ -187,6 +203,8 @@ function editSubTask(parentTaskId, subTaskId) {
 
       const saveButton = document.createElement('button');
       saveButton.textContent = 'Save Changes';
+      saveButton.type = 'button'; // Set the type to 'button' to avoid form submission
+
       saveButton.addEventListener('click', () => {
         const errors = validateSubTask(
           parentTaskId.toString(),
@@ -218,7 +236,6 @@ function editSubTask(parentTaskId, subTaskId) {
     }
   }
 }
-
   // Search Tasks
   const searchInput = document.getElementById('searchInput');
   searchInput.addEventListener('input', searchTasks);
