@@ -78,51 +78,147 @@ function addSubTask(e) {
 
 // Render Task List
 function renderTaskList() {
-    const taskListContainer = document.getElementById('taskList');
-    taskListContainer.innerHTML = '';
-  
-    parentTasks.forEach(parentTask => {
-      const parentTaskElement = document.createElement('div');
-      parentTaskElement.classList.add('parent-task');
-  
-      const parentTaskInfo = `
-        <h3>Parent Task ID: ${parentTask.id}</h3>
-        <p>Name: ${parentTask.name}</p>
-        <p>Start Date: ${formatDate(parentTask.startDate)}</p>
-        <p>End Date: ${formatDate(parentTask.endDate)}</p>
-        <p>Status: <span class="status-${parentTask.status}">${capitalizeFirstLetter(parentTask.status)}</span></p>
-        <button onclick="editParentTask(${parentTask.id})">Edit</button>
-        <button onclick="deleteParentTask(${parentTask.id})">Delete</button>
+  const taskListContainer = document.getElementById('taskList');
+  taskListContainer.innerHTML = '';
+
+  parentTasks.forEach(parentTask => {
+    const parentTaskElement = document.createElement('div');
+    parentTaskElement.classList.add('parent-task');
+
+    const parentTaskInfo = `
+      <h3>Parent Task ID: ${parentTask.id}</h3>
+      <p>Name: ${parentTask.name}</p>
+      <p>Start Date: ${formatDate(parentTask.startDate)}</p>
+      <p>End Date: ${formatDate(parentTask.endDate)}</p>
+      <p>Status: <span class="status-${parentTask.status}">${capitalizeFirstLetter(parentTask.status)}</span></p>
+      <button onclick="editParentTask(${parentTask.id})">Edit</button>
+      <button onclick="deleteParentTask(${parentTask.id})">Delete</button>
+    `;
+
+    parentTaskElement.innerHTML = parentTaskInfo;
+    taskListContainer.appendChild(parentTaskElement);
+
+    const subTaskList = document.createElement('div');
+    subTaskList.classList.add('sub-task-list');
+
+    parentTask.subTasks.forEach(subTask => {
+      const subTaskElement = document.createElement('div');
+      subTaskElement.classList.add('sub-task');
+
+      const subTaskInfo = `
+        <p>Sub-Task ID: ${subTask.id}</p>
+        <p>Name: ${subTask.name}</p>
+        <p>Start Date: ${formatDate(subTask.startDate)}</p>
+        <p>End Date: ${formatDate(subTask.endDate)}</p>
+        <p>Status: <span class="status-${subTask.status}">${capitalizeFirstLetter(subTask.status)}</span></p>
+        <button onclick="editSubTask(${parentTask.id}, ${subTask.id})">Edit</button>
+        <button onclick="deleteSubTask(${parentTask.id}, ${subTask.id})">Delete</button>
       `;
-  
-      parentTaskElement.innerHTML = parentTaskInfo;
-      taskListContainer.appendChild(parentTaskElement);
-  
-      const subTaskList = document.createElement('div');
-      subTaskList.classList.add('sub-task-list');
-  
-      parentTask.subTasks.forEach(subTask => {
-        const subTaskElement = document.createElement('div');
-        subTaskElement.classList.add('sub-task');
-  
-        const subTaskInfo = `
-          <p>Sub-Task ID: ${subTask.id}</p>
-          <p>Name: ${subTask.name}</p>
-          <p>Start Date: ${formatDate(subTask.startDate)}</p>
-          <p>End Date: ${formatDate(subTask.endDate)}</p>
-          <p>Status: <span class="status-${subTask.status}">${capitalizeFirstLetter(subTask.status)}</span></p>
-          <button onclick="editSubTask(${parentTask.id}, ${subTask.id})">Edit</button>
-          <button onclick="deleteSubTask(${parentTask.id}, ${subTask.id})">Delete</button>
-        `;
-  
-        subTaskElement.innerHTML = subTaskInfo;
-        subTaskList.appendChild(subTaskElement);
-      });
-  
-      parentTaskElement.appendChild(subTaskList);
+
+      subTaskElement.innerHTML = subTaskInfo;
+      subTaskList.appendChild(subTaskElement);
     });
+
+    parentTaskElement.appendChild(subTaskList);
+  });
+}  
+// Edit Parent Task
+function editParentTask(parentTaskId) {
+  const parentTask = parentTasks.find(task => task.id === parentTaskId);
+  if (parentTask) {
+    const parentTaskNameInput = document.getElementById('parentTaskName');
+    const parentTaskStartDateInput = document.getElementById('parentTaskStartDate');
+    const parentTaskEndDateInput = document.getElementById('parentTaskEndDate');
+    const parentTaskStatusInput = document.getElementById('parentTaskStatus');
+
+    parentTaskNameInput.value = parentTask.name;
+    parentTaskStartDateInput.value = formatDate(parentTask.startDate);
+    parentTaskEndDateInput.value = formatDate(parentTask.endDate);
+    parentTaskStatusInput.value = parentTask.status;
+
+    const saveButton = document.createElement('button');
+    saveButton.textContent = 'Save Changes';
+    saveButton.addEventListener('click', () => {
+      const errors = validateParentTask(
+        parentTaskId.toString(),
+        parentTaskNameInput.value.trim(),
+        parentTaskStartDateInput.value,
+        parentTaskEndDateInput.value
+      );
+
+      if (errors.length === 0) {
+        const updatedParentTask = {
+          id: parentTaskId,
+          name: parentTaskNameInput.value.trim(),
+          startDate: new Date(parentTaskStartDateInput.value),
+          endDate: new Date(parentTaskEndDateInput.value),
+          status: parentTaskStatusInput.value,
+          subTasks: parentTask.subTasks
+        };
+
+        const index = parentTasks.findIndex(task => task.id === parentTaskId);
+        parentTasks[index] = updatedParentTask;
+        renderTaskList();
+        clearParentTaskForm();
+        parentTaskForm.removeChild(saveButton);
+      } else {
+        displayErrors(errors);
+      }
+    });
+
+    parentTaskForm.appendChild(saveButton);
   }
-  
+}
+// Edit Sub-Task
+function editSubTask(parentTaskId, subTaskId) {
+  const parentTask = parentTasks.find(task => task.id === parentTaskId);
+  if (parentTask) {
+    const subTask = parentTask.subTasks.find(task => task.id === subTaskId);
+    if (subTask) {
+      const subTaskNameInput = document.getElementById('subTaskName');
+      const subTaskStartDateInput = document.getElementById('subTaskStartDate');
+      const subTaskEndDateInput = document.getElementById('subTaskEndDate');
+      const subTaskStatusInput = document.getElementById('subTaskStatus');
+
+      subTaskNameInput.value = subTask.name;
+      subTaskStartDateInput.value = formatDate(subTask.startDate);
+      subTaskEndDateInput.value = formatDate(subTask.endDate);
+      subTaskStatusInput.value = subTask.status;
+
+      const saveButton = document.createElement('button');
+      saveButton.textContent = 'Save Changes';
+      saveButton.addEventListener('click', () => {
+        const errors = validateSubTask(
+          parentTaskId.toString(),
+          subTaskNameInput.value.trim(),
+          subTaskStartDateInput.value,
+          subTaskEndDateInput.value
+        );
+
+        if (errors.length === 0) {
+          const updatedSubTask = {
+            id: subTaskId,
+            name: subTaskNameInput.value.trim(),
+            startDate: new Date(subTaskStartDateInput.value),
+            endDate: new Date(subTaskEndDateInput.value),
+            status: subTaskStatusInput.value
+          };
+
+          const subTaskIndex = parentTask.subTasks.findIndex(task => task.id === subTaskId);
+          parentTask.subTasks[subTaskIndex] = updatedSubTask;
+          renderTaskList();
+          clearSubTaskForm();
+          subTaskForm.removeChild(saveButton);
+        } else {
+          displayErrors(errors);
+        }
+      });
+
+      subTaskForm.appendChild(saveButton);
+    }
+  }
+}
+
   // Search Tasks
   const searchInput = document.getElementById('searchInput');
   searchInput.addEventListener('input', searchTasks);
@@ -214,13 +310,15 @@ function renderTaskList() {
   
   // Validation Functions 
   // Validation Functions
-function validateParentTask(parentTaskId, parentTaskName, parentTaskStartDate, parentTaskEndDate) {
+  function validateParentTask(parentTaskId, parentTaskName, parentTaskStartDate, parentTaskEndDate) {
     const errors = [];
+  
+    const parentTask = parentTasks.find(task => task.id === parseInt(parentTaskId));
   
     // Validate Parent Task ID
     if (isNaN(parentTaskId) || parentTaskId.trim() === '') {
       errors.push('Parent Task ID must be a number and cannot be empty.');
-    } else if (parentTasks.some(task => task.id === parseInt(parentTaskId))) {
+    } else if (parentTasks.some(task => task.id === parseInt(parentTaskId) && task.id !== parentTask?.id)) {
       errors.push('Parent Task ID already exists.');
     }
   
@@ -236,7 +334,6 @@ function validateParentTask(parentTaskId, parentTaskName, parentTaskStartDate, p
   
     return errors;
   }
-  
   function validateSubTask(parentTaskIdForSubTask, subTaskName, subTaskStartDate, subTaskEndDate) {
     const errors = [];
   
